@@ -9,28 +9,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a90759db-c798-4831-923b-99d090016583" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.BE/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.BE/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.BE/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.BE/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/API.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/Program.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/Properties/launchSettings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/Services/DependencyRegistration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/appsettings.Development.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/appsettings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BE.sln" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/ApplicationDbContext.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/DB.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/Models/BaseEntity.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/Repository/GenericRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/Repository/IGenericRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/Repository/Utilites/EnumerableExtensions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/Repository/Utilites/Result.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DB/Services/DependencyRegistration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.BE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BE/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE.sln" beforeDir="false" afterPath="$PROJECT_DIR$/BE.sln" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +106,7 @@
       <updated>1760460845588</updated>
       <workItem from="1760460846648" duration="598000" />
       <workItem from="1760461462438" duration="106000" />
-      <workItem from="1760461583855" duration="1004000" />
+      <workItem from="1760461583855" duration="1220000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
