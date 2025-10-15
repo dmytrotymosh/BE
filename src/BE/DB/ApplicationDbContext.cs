@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using BookLoop.Data.Models;
+using DB.Models;
 
 namespace DB;
 
@@ -14,6 +14,37 @@ public class ApplicationDbContext : DbContext
     public DbSet<Exchange> Exchanges { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
+
+    public override int SaveChanges()
+    {
+        UpdateTimestamps();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateTimestamps();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateTimestamps()
+    {
+        var entries = ChangeTracker.Entries<BaseEntity>();
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in entries)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.Created = now;
+                entry.Entity.Modified = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.Modified = now;
+            }
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

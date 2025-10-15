@@ -1,18 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookLoop.Data.Models
+namespace DB.Models
 {
-    public class Book
+    public class Book :BaseEntity
     {
-        [Key]
-        [Column("id", TypeName = "uuid")]
-        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         [Column("owner_id", TypeName = "uuid")]
         public Guid OwnerId { get; set; }

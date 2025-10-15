@@ -1,18 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookLoop.Data.Models
+namespace DB.Models
 {
-    public class User
+    public class User :BaseEntity
     {
-        [Key]
-        [Column("id", TypeName = "uuid")]
-        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         [MaxLength(50)]
         [Column("first_name", TypeName = "varchar(50)")]

@@ -9,11 +9,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a90759db-c798-4831-923b-99d090016583" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.BE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BE/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/API/API.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/API/API.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/API/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/Services/DependencyRegistration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Services/DependencyRegistration.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/API/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/API/appsettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/DB.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/DB/DB.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/ApplicationDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/ApplicationDbContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/Models/BaseEntity.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/Models/BaseEntity.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/Models/Book.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/Models/Book.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/Models/Chat.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/Models/Chat.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/Models/Exchange.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/Models/Exchange.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/Models/Message.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/Models/Message.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/Models/User.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/Models/User.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,10 +47,23 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/.claude/settings.local.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Services/DependencyRegistration.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/API/Services/DependencyRegistration.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/appsettings.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/appsettings.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/DB/ApplicationDbContext.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/DB/ApplicationDbContext.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/DB/Models/BaseEntity.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/DB/Models/BaseEntity.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/DB/Models/Book.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/DB/Models/Chat.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/DB/Models/Exchange.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/DB/Models/Message.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/DB/Services/DependencyRegistration.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -116,7 +135,7 @@
       <workItem from="1760461462438" duration="106000" />
       <workItem from="1760461583855" duration="1220000" />
       <workItem from="1760534189159" duration="768000" />
-      <workItem from="1760535288302" duration="1757000" />
+      <workItem from="1760535288302" duration="2875000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -134,7 +153,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760462391008</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="set up postgress">
+      <option name="closed" value="true" />
+      <created>1760553125862</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1760553125862</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,7 +195,8 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+    <MESSAGE value="set up postgress" />
+    <option name="LAST_COMMIT_MESSAGE" value="set up postgress" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
