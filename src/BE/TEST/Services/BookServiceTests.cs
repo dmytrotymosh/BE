@@ -21,8 +21,6 @@ public class BookServiceTests
         _bookService = new BookService(_bookRepositoryMock.Object);
     }
 
-    #region GetBooksAsync Tests
-
     [Test]
     public async Task GetBooksAsync_WithoutOwnerIdFilter_ReturnsAllBooks()
     {
@@ -81,7 +79,6 @@ public class BookServiceTests
     [Test]
     public async Task GetBooksAsync_WithOwnerIdFilter_ReturnsFilteredBooks()
     {
-        // Arrange
         var ownerId = Guid.NewGuid();
         var books = new List<Book>
         {
@@ -111,10 +108,8 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(Result<IEnumerable<Book>>.Ok(books));
 
-        // Act
         var result = await _bookService.GetBooksAsync(ownerId);
 
-        // Assert
         Assert.That(result.Success, Is.True);
         Assert.That(result.Data, Is.Not.Null);
         Assert.That(result.Data.Count(), Is.EqualTo(1));
@@ -124,7 +119,6 @@ public class BookServiceTests
     [Test]
     public async Task GetBooksAsync_WhenRepositoryFails_ReturnsFailure()
     {
-        // Arrange
         _bookRepositoryMock
             .Setup(x => x.GetListAsync<Book>(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
@@ -137,10 +131,8 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(Result<IEnumerable<Book>>.Fail("Database error"));
 
-        // Act
         var result = await _bookService.GetBooksAsync();
 
-        // Assert
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.EqualTo("Database error"));
     }
@@ -148,7 +140,6 @@ public class BookServiceTests
     [Test]
     public async Task GetBooksAsync_ReturnsEmptyList_WhenNoBooksFound()
     {
-        // Arrange
         _bookRepositoryMock
             .Setup(x => x.GetListAsync<Book>(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
@@ -161,7 +152,6 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(Result<IEnumerable<Book>>.Ok(new List<Book>()));
 
-        // Act
         var result = await _bookService.GetBooksAsync();
 
         // Assert
@@ -170,14 +160,9 @@ public class BookServiceTests
         Assert.That(result.Data.Count(), Is.EqualTo(0));
     }
 
-    #endregion
-
-    #region GetBookByIdAsync Tests
-
     [Test]
     public async Task GetBookByIdAsync_WithValidId_ReturnsBook()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
         var book = new Book
         {
@@ -201,10 +186,8 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(Result<Book>.Ok(book));
 
-        // Act
         var result = await _bookService.GetBookByIdAsync(bookId);
 
-        // Assert
         Assert.That(result.Success, Is.True);
         Assert.That(result.Data, Is.Not.Null);
         Assert.That(result.Data.Id, Is.EqualTo(bookId));
@@ -216,7 +199,6 @@ public class BookServiceTests
     [Test]
     public async Task GetBookByIdAsync_WithNonExistentId_ReturnsFailure()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
 
         _bookRepositoryMock
@@ -228,10 +210,8 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(Result<Book>.Fail("Not found"));
 
-        // Act
         var result = await _bookService.GetBookByIdAsync(bookId);
 
-        // Assert
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.EqualTo("Book not found"));
     }
@@ -239,7 +219,6 @@ public class BookServiceTests
     [Test]
     public async Task GetBookByIdAsync_WhenRepositoryReturnsNullData_ReturnsFailure()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
 
         _bookRepositoryMock
@@ -251,22 +230,15 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(new Result<Book> { Success = true, Data = null });
 
-        // Act
         var result = await _bookService.GetBookByIdAsync(bookId);
 
-        // Assert
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.EqualTo("Book not found"));
     }
 
-    #endregion
-
-    #region AddBookAsync Tests
-
     [Test]
     public async Task AddBookAsync_WithValidRequest_ReturnsCreatedBook()
     {
-        // Arrange
         var ownerId = Guid.NewGuid();
         var bookId = Guid.NewGuid();
         var addRequest = new AddBookRequest
@@ -304,10 +276,8 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(Result<Book>.Ok(createdBook));
 
-        // Act
         var result = await _bookService.AddBookAsync(ownerId, addRequest);
 
-        // Assert
         Assert.That(result.Success, Is.True);
         Assert.That(result.Data, Is.Not.Null);
         Assert.That(result.Data.OwnerId, Is.EqualTo(ownerId));
@@ -328,7 +298,6 @@ public class BookServiceTests
     [Test]
     public async Task AddBookAsync_WhenRepositoryAddFails_ReturnsFailure()
     {
-        // Arrange
         var ownerId = Guid.NewGuid();
         var addRequest = new AddBookRequest
         {
@@ -342,13 +311,356 @@ public class BookServiceTests
             .Setup(x => x.AddAsync(It.IsAny<Book>(), default))
             .ReturnsAsync(Result.Fail("Database error"));
 
-        // Act
         var result = await _bookService.AddBookAsync(ownerId, addRequest);
 
-        // Assert
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.EqualTo("Database error"));
     }
 
-    #endregion
+    [Test]
+    public async Task UpdateBookAsync_WithValidRequest_ReturnsUpdatedBook()
+    {
+        var bookId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
+        var existingBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Title = "Old Title",
+            Description = "Old Description",
+            State = "Old State",
+            Genre = "Old Genre"
+        };
+
+        var updateRequest = new UpdateBookRequest
+        {
+            Title = "New Title",
+            Description = "New Description",
+            State = "New State",
+            Genre = "New Genre"
+        };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(existingBook));
+
+        _bookRepositoryMock
+            .Setup(x => x.UpdateAsync(It.IsAny<Book>(), default))
+            .ReturnsAsync(Result.Ok());
+
+        var updatedBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Owner = new User { FirstName = "John", LastName = "Doe" },
+            Title = updateRequest.Title,
+            Description = updateRequest.Description,
+            State = updateRequest.State,
+            Genre = updateRequest.Genre,
+            Created = DateTime.UtcNow,
+            Modified = DateTime.UtcNow
+        };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                It.IsAny<List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>>(),
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(updatedBook));
+
+        var result = await _bookService.UpdateBookAsync(bookId, ownerId, updateRequest);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+        Assert.That(result.Data.Title, Is.EqualTo(updateRequest.Title));
+        Assert.That(result.Data.Description, Is.EqualTo(updateRequest.Description));
+        Assert.That(result.Data.State, Is.EqualTo(updateRequest.State));
+        Assert.That(result.Data.Genre, Is.EqualTo(updateRequest.Genre));
+
+        _bookRepositoryMock.Verify(x => x.UpdateAsync(It.Is<Book>(b =>
+            b.Title == updateRequest.Title &&
+            b.Description == updateRequest.Description &&
+            b.State == updateRequest.State &&
+            b.Genre == updateRequest.Genre
+        ), default), Times.Once);
+    }
+
+    [Test]
+    public async Task UpdateBookAsync_WithPartialUpdate_OnlyUpdatesProvidedFields()
+    {
+        var bookId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
+        var existingBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Title = "Old Title",
+            Description = "Old Description",
+            State = "Old State",
+            Genre = "Old Genre"
+        };
+
+        var updateRequest = new UpdateBookRequest
+        {
+            Title = "New Title",
+            State = "New State"
+        };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(existingBook));
+
+        _bookRepositoryMock
+            .Setup(x => x.UpdateAsync(It.IsAny<Book>(), default))
+            .ReturnsAsync(Result.Ok());
+
+        var updatedBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Owner = new User { FirstName = "John", LastName = "Doe" },
+            Title = "New Title",
+            Description = "Old Description",
+            State = "New State",
+            Genre = "Old Genre",
+            Created = DateTime.UtcNow,
+            Modified = DateTime.UtcNow
+        };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                It.IsAny<List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>>(),
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(updatedBook));
+
+        var result = await _bookService.UpdateBookAsync(bookId, ownerId, updateRequest);
+
+        Assert.That(result.Success, Is.True);
+        _bookRepositoryMock.Verify(x => x.UpdateAsync(It.Is<Book>(b =>
+            b.Title == "New Title" &&
+            b.Description == "Old Description" &&
+            b.State == "New State" &&
+            b.Genre == "Old Genre"
+        ), default), Times.Once);
+    }
+
+    [Test]
+    public async Task UpdateBookAsync_WithNonExistentBook_ReturnsFailure()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "New Title" };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Fail("Not found"));
+
+        var result = await _bookService.UpdateBookAsync(bookId, userId, updateRequest);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("Book not found"));
+
+        _bookRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<Book>(), default), Times.Never);
+    }
+
+    [Test]
+    public async Task UpdateBookAsync_WhenUserIsNotOwner_ReturnsUnauthorized()
+    {
+        var bookId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
+        var differentUserId = Guid.NewGuid();
+        var existingBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Title = "Old Title"
+        };
+
+        var updateRequest = new UpdateBookRequest { Title = "New Title" };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(existingBook));
+
+        var result = await _bookService.UpdateBookAsync(bookId, differentUserId, updateRequest);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("You are not authorized to update this book"));
+
+        _bookRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<Book>(), default), Times.Never);
+    }
+
+    [Test]
+    public async Task UpdateBookAsync_WhenRepositoryUpdateFails_ReturnsFailure()
+    {
+        var bookId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
+        var existingBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Title = "Old Title"
+        };
+
+        var updateRequest = new UpdateBookRequest { Title = "New Title" };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(existingBook));
+
+        _bookRepositoryMock
+            .Setup(x => x.UpdateAsync(It.IsAny<Book>(), default))
+            .ReturnsAsync(Result.Fail("Database error"));
+
+        var result = await _bookService.UpdateBookAsync(bookId, ownerId, updateRequest);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("Database error"));
+    }
+
+    [Test]
+    public async Task DeleteBookAsync_WithValidRequest_ReturnsSuccess()
+    {
+        var bookId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
+        var existingBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Title = "Book Title"
+        };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(existingBook));
+
+        _bookRepositoryMock
+            .Setup(x => x.RemoveAsync(It.IsAny<Book>(), default))
+            .ReturnsAsync(Result.Ok());
+
+        var result = await _bookService.DeleteBookAsync(bookId, ownerId);
+
+        Assert.That(result.Success, Is.True);
+
+        _bookRepositoryMock.Verify(x => x.RemoveAsync(It.Is<Book>(b => b.Id == bookId), default), Times.Once);
+    }
+
+    [Test]
+    public async Task DeleteBookAsync_WithNonExistentBook_ReturnsFailure()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Fail("Not found"));
+
+        var result = await _bookService.DeleteBookAsync(bookId, userId);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("Book not found"));
+
+        _bookRepositoryMock.Verify(x => x.RemoveAsync(It.IsAny<Book>(), default), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteBookAsync_WhenUserIsNotOwner_ReturnsUnauthorized()
+    {
+        var bookId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
+        var differentUserId = Guid.NewGuid();
+        var existingBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Title = "Book Title"
+        };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(existingBook));
+
+        var result = await _bookService.DeleteBookAsync(bookId, differentUserId);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("You are not authorized to delete this book"));
+
+        _bookRepositoryMock.Verify(x => x.RemoveAsync(It.IsAny<Book>(), default), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteBookAsync_WhenRepositoryRemoveFails_ReturnsFailure()
+    {
+        var bookId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
+        var existingBook = new Book
+        {
+            Id = bookId,
+            OwnerId = ownerId,
+            Title = "Book Title"
+        };
+
+        _bookRepositoryMock
+            .Setup(x => x.GetSingleAsync<Book>(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Book, bool>>>(),
+                null,
+                null,
+                false,
+                default))
+            .ReturnsAsync(Result<Book>.Ok(existingBook));
+
+        _bookRepositoryMock
+            .Setup(x => x.RemoveAsync(It.IsAny<Book>(), default))
+            .ReturnsAsync(Result.Fail("Database error"));
+
+        var result = await _bookService.DeleteBookAsync(bookId, ownerId);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("Database error"));
+    }
 }

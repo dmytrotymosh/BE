@@ -9,17 +9,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a90759db-c798-4831-923b-99d090016583" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BE/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/Controllers/AuthController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Controllers/AuthController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/Services/Interfaces/IAuthenticationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Services/Interfaces/IAuthenticationService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/Services/Realisations/AuthenticationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Services/Realisations/AuthenticationService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TEST/Controllers/AuthControllerTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TEST/Controllers/AuthControllerTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TEST/Services/AuthenticationServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TEST/Services/AuthenticationServiceTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/API.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/API/API.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/Controllers/BookController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Controllers/BookController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/Services/Interfaces/IBookService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Services/Interfaces/IBookService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/Services/Realisations/BookService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Services/Realisations/BookService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/Services/DependencyRegistration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DB/Services/DependencyRegistration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TEST/Controllers/BookControllerTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TEST/Controllers/BookControllerTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TEST/Services/BookServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TEST/Services/BookServiceTests.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -42,15 +49,23 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/.claude/settings.local.json" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/API/Services/DependencyRegistration.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Controllers/BookController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Program.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Services/Interfaces/IAuthenticationService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Services/Interfaces/IBookService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Services/Realisations/AuthenticationService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/API/Services/Realisations/BookService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/DB/ApplicationDbContext.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/DB/Models/BaseEntity.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/DB/Services/DependencyRegistration.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/DB/Services/DependencyRegistration.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/TEST/Controllers/AuthControllerTests.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/TEST/Controllers/BookControllerTests.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/TEST/Services/AuthenticationServiceTests.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/cifyr/RiderProjects/BE/src/BE/TEST/Services/BookServiceTests.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
@@ -64,6 +79,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    ".NET Launch Settings Profile.API: http.executor": "Debug",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -157,7 +173,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760554075934</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="add books">
+      <option name="closed" value="true" />
+      <created>1760555799561</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1760555799561</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -193,7 +217,8 @@
     <MESSAGE value="Initial commit" />
     <MESSAGE value="set up postgress" />
     <MESSAGE value="update models" />
-    <option name="LAST_COMMIT_MESSAGE" value="update models" />
+    <MESSAGE value="add books" />
+    <option name="LAST_COMMIT_MESSAGE" value="add books" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

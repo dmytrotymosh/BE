@@ -84,4 +84,87 @@ public class BookController(
         logger.LogInformation("Book {BookId} added successfully for user {UserId}", result.Data.Id, userId);
         return CreatedAtAction(nameof(GetBookById), new { id = result.Data.Id }, result.Data);
     }
+
+    [HttpPut("{id}")]
+    [Authorize]
+    [ProducesResponseType(typeof(BookResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> UpdateBook(Guid id, [FromBody] UpdateBookRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            logger.LogWarning("Invalid user ID in token");
+            return Unauthorized(new { error = "Invalid token" });
+        }
+
+        var result = await bookService.UpdateBookAsync(id, userId, request);
+
+        if (!result.Success)
+        {
+            logger.LogWarning("Failed to update book {BookId} for user {UserId}: {Error}", id, userId, result.Error);
+
+            if (result.Error == "Book not found")
+            {
+                return NotFound(new { error = result.Error });
+            }
+
+            if (result.Error == "You are not authorized to update this book")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error });
+            }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        logger.LogInformation("Book {BookId} updated successfully by user {UserId}", id, userId);
+        return Ok(result.Data);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> DeleteBook(Guid id)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            logger.LogWarning("Invalid user ID in token");
+            return Unauthorized(new { error = "Invalid token" });
+        }
+
+        var result = await bookService.DeleteBookAsync(id, userId);
+
+        if (!result.Success)
+        {
+            logger.LogWarning("Failed to delete book {BookId} for user {UserId}: {Error}", id, userId, result.Error);
+
+            if (result.Error == "Book not found")
+            {
+                return NotFound(new { error = result.Error });
+            }
+
+            if (result.Error == "You are not authorized to delete this book")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error });
+            }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        logger.LogInformation("Book {BookId} deleted successfully by user {UserId}", id, userId);
+        return NoContent();
+    }
 }

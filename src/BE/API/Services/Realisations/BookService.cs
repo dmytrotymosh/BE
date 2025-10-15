@@ -97,4 +97,70 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
         
         return await GetBookByIdAsync(book.Id);
     }
+
+    public async Task<Result<BookResponse>> UpdateBookAsync(Guid bookId, Guid userId, UpdateBookRequest request)
+    {
+        var bookResult = await bookRepository.GetSingleAsync<Book>(
+            filter: b => b.Id == bookId,
+            includes: null,
+            selector: null
+        );
+
+        if (!bookResult.Success || bookResult.Data == null)
+        {
+            return Result<BookResponse>.Fail("Book not found");
+        }
+
+        var book = bookResult.Data;
+
+        if (book.OwnerId != userId)
+        {
+            return Result<BookResponse>.Fail("You are not authorized to update this book");
+        }
+
+        book.Title = request.Title ?? book.Title;
+        book.Description = request.Description ?? book.Description;
+        book.State = request.State ?? book.State;
+        book.Genre = request.Genre ?? book.Genre;
+        book.Modified = DateTime.UtcNow;
+
+        var updateResult = await bookRepository.UpdateAsync(book);
+
+        if (!updateResult.Success)
+        {
+            return Result<BookResponse>.Fail(updateResult.Error);
+        }
+
+        return await GetBookByIdAsync(bookId);
+    }
+
+    public async Task<Result> DeleteBookAsync(Guid bookId, Guid userId)
+    {
+        var bookResult = await bookRepository.GetSingleAsync<Book>(
+            filter: b => b.Id == bookId,
+            includes: null,
+            selector: null
+        );
+
+        if (!bookResult.Success || bookResult.Data == null)
+        {
+            return Result.Fail("Book not found");
+        }
+
+        var book = bookResult.Data;
+
+        if (book.OwnerId != userId)
+        {
+            return Result.Fail("You are not authorized to delete this book");
+        }
+
+        var deleteResult = await bookRepository.RemoveAsync(book);
+
+        if (!deleteResult.Success)
+        {
+            return Result.Fail(deleteResult.Error);
+        }
+
+        return Result.Ok();
+    }
 }

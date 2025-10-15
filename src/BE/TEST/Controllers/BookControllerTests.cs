@@ -25,8 +25,6 @@ public class BookControllerTests
         _bookController = new BookController(_bookServiceMock.Object, _loggerMock.Object);
     }
 
-    #region GetBooks Tests
-
     [Test]
     public async Task GetBooks_WithoutOwnerIdFilter_ReturnsOkWithAllBooks()
     {
@@ -83,7 +81,6 @@ public class BookControllerTests
     [Test]
     public async Task GetBooks_WithOwnerIdFilter_ReturnsOkWithFilteredBooks()
     {
-        // Arrange
         var ownerId = Guid.NewGuid();
         var books = new List<BookResponse>
         {
@@ -106,10 +103,8 @@ public class BookControllerTests
             .Setup(x => x.GetBooksAsync(ownerId))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
-        // Act
         var result = await _bookController.GetBooks(ownerId);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<OkObjectResult>());
         var okResult = result as OkObjectResult;
         Assert.That(okResult.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
@@ -125,15 +120,12 @@ public class BookControllerTests
     [Test]
     public async Task GetBooks_WhenServiceFails_ReturnsBadRequest()
     {
-        // Arrange
         _bookServiceMock
             .Setup(x => x.GetBooksAsync(null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Fail("Database error"));
 
-        // Act
         var result = await _bookController.GetBooks();
 
-        // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         var badRequestResult = result as BadRequestObjectResult;
         Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
@@ -142,15 +134,12 @@ public class BookControllerTests
     [Test]
     public async Task GetBooks_WhenServiceFails_LogsWarning()
     {
-        // Arrange
         _bookServiceMock
             .Setup(x => x.GetBooksAsync(null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Fail("Database error"));
 
-        // Act
         await _bookController.GetBooks();
 
-        // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Warning,
@@ -164,7 +153,6 @@ public class BookControllerTests
     [Test]
     public async Task GetBooks_WhenSuccessful_LogsInformation()
     {
-        // Arrange
         var books = new List<BookResponse>
         {
             new BookResponse { Id = Guid.NewGuid(), Title = "Book 1" },
@@ -175,10 +163,8 @@ public class BookControllerTests
             .Setup(x => x.GetBooksAsync(null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
-        // Act
         await _bookController.GetBooks();
 
-        // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Information,
@@ -189,14 +175,9 @@ public class BookControllerTests
             Times.Once);
     }
 
-    #endregion
-
-    #region GetBookById Tests
-
     [Test]
     public async Task GetBookById_WithValidId_ReturnsOkWithBook()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
         var book = new BookResponse
         {
@@ -216,10 +197,8 @@ public class BookControllerTests
             .Setup(x => x.GetBookByIdAsync(bookId))
             .ReturnsAsync(Result<BookResponse>.Ok(book));
 
-        // Act
         var result = await _bookController.GetBookById(bookId);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<OkObjectResult>());
         var okResult = result as OkObjectResult;
         Assert.That(okResult.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
@@ -231,17 +210,14 @@ public class BookControllerTests
     [Test]
     public async Task GetBookById_WithNonExistentId_ReturnsNotFound()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
 
         _bookServiceMock
             .Setup(x => x.GetBookByIdAsync(bookId))
             .ReturnsAsync(Result<BookResponse>.Fail("Book not found"));
 
-        // Act
         var result = await _bookController.GetBookById(bookId);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
         var notFoundResult = result as NotFoundObjectResult;
         Assert.That(notFoundResult.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
@@ -250,17 +226,14 @@ public class BookControllerTests
     [Test]
     public async Task GetBookById_WhenServiceReturnsOtherError_ReturnsBadRequest()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
 
         _bookServiceMock
             .Setup(x => x.GetBookByIdAsync(bookId))
             .ReturnsAsync(Result<BookResponse>.Fail("Database error"));
 
-        // Act
         var result = await _bookController.GetBookById(bookId);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         var badRequestResult = result as BadRequestObjectResult;
         Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
@@ -269,17 +242,14 @@ public class BookControllerTests
     [Test]
     public async Task GetBookById_WhenServiceFails_LogsWarning()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
 
         _bookServiceMock
             .Setup(x => x.GetBookByIdAsync(bookId))
             .ReturnsAsync(Result<BookResponse>.Fail("Book not found"));
 
-        // Act
         await _bookController.GetBookById(bookId);
 
-        // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Warning,
@@ -293,7 +263,6 @@ public class BookControllerTests
     [Test]
     public async Task GetBookById_WhenSuccessful_LogsInformation()
     {
-        // Arrange
         var bookId = Guid.NewGuid();
         var book = new BookResponse { Id = bookId, Title = "Test Book" };
 
@@ -301,10 +270,8 @@ public class BookControllerTests
             .Setup(x => x.GetBookByIdAsync(bookId))
             .ReturnsAsync(Result<BookResponse>.Ok(book));
 
-        // Act
         await _bookController.GetBookById(bookId);
 
-        // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Information,
@@ -315,14 +282,9 @@ public class BookControllerTests
             Times.Once);
     }
 
-    #endregion
-
-    #region AddBook Tests
-
     [Test]
     public async Task AddBook_WithValidRequest_ReturnsCreatedAtAction()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var bookId = Guid.NewGuid();
         var addRequest = new AddBookRequest
@@ -351,7 +313,6 @@ public class BookControllerTests
             .Setup(x => x.AddBookAsync(userId, addRequest))
             .ReturnsAsync(Result<BookResponse>.Ok(bookResponse));
 
-        // Setup user claims
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString())
@@ -363,10 +324,8 @@ public class BookControllerTests
             HttpContext = new DefaultHttpContext { User = claimsPrincipal }
         };
 
-        // Act
         var result = await _bookController.AddBook(addRequest);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<CreatedAtActionResult>());
         var createdResult = result as CreatedAtActionResult;
         Assert.That(createdResult.StatusCode, Is.EqualTo(StatusCodes.Status201Created));
@@ -379,7 +338,6 @@ public class BookControllerTests
     [Test]
     public async Task AddBook_WithInvalidModelState_ReturnsBadRequest()
     {
-        // Arrange
         var addRequest = new AddBookRequest
         {
             Title = "",
@@ -388,10 +346,8 @@ public class BookControllerTests
 
         _bookController.ModelState.AddModelError("Title", "Title is required");
 
-        // Act
         var result = await _bookController.AddBook(addRequest);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         var badRequestResult = result as BadRequestObjectResult;
         Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
@@ -402,7 +358,6 @@ public class BookControllerTests
     [Test]
     public async Task AddBook_WithMissingUserIdClaim_ReturnsUnauthorized()
     {
-        // Arrange
         var addRequest = new AddBookRequest
         {
             Title = "New Book",
@@ -411,7 +366,6 @@ public class BookControllerTests
             Genre = "Fiction"
         };
 
-        // Setup empty claims
         var claims = new List<Claim>();
         var identity = new ClaimsIdentity(claims, "TestAuth");
         var claimsPrincipal = new ClaimsPrincipal(identity);
@@ -420,10 +374,8 @@ public class BookControllerTests
             HttpContext = new DefaultHttpContext { User = claimsPrincipal }
         };
 
-        // Act
         var result = await _bookController.AddBook(addRequest);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>());
         var unauthorizedResult = result as UnauthorizedObjectResult;
         Assert.That(unauthorizedResult.StatusCode, Is.EqualTo(StatusCodes.Status401Unauthorized));
@@ -434,7 +386,6 @@ public class BookControllerTests
     [Test]
     public async Task AddBook_WithInvalidUserIdFormat_ReturnsUnauthorized()
     {
-        // Arrange
         var addRequest = new AddBookRequest
         {
             Title = "New Book",
@@ -443,7 +394,6 @@ public class BookControllerTests
             Genre = "Fiction"
         };
 
-        // Setup claims with invalid user ID
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, "invalid-guid")
@@ -455,10 +405,8 @@ public class BookControllerTests
             HttpContext = new DefaultHttpContext { User = claimsPrincipal }
         };
 
-        // Act
         var result = await _bookController.AddBook(addRequest);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>());
         var unauthorizedResult = result as UnauthorizedObjectResult;
         Assert.That(unauthorizedResult.StatusCode, Is.EqualTo(StatusCodes.Status401Unauthorized));
@@ -469,7 +417,6 @@ public class BookControllerTests
     [Test]
     public async Task AddBook_WhenServiceFails_ReturnsBadRequest()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var addRequest = new AddBookRequest
         {
@@ -483,7 +430,6 @@ public class BookControllerTests
             .Setup(x => x.AddBookAsync(userId, addRequest))
             .ReturnsAsync(Result<BookResponse>.Fail("Database error"));
 
-        // Setup user claims
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString())
@@ -495,10 +441,8 @@ public class BookControllerTests
             HttpContext = new DefaultHttpContext { User = claimsPrincipal }
         };
 
-        // Act
         var result = await _bookController.AddBook(addRequest);
 
-        // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         var badRequestResult = result as BadRequestObjectResult;
         Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
@@ -507,7 +451,6 @@ public class BookControllerTests
     [Test]
     public async Task AddBook_WithMissingUserIdClaim_LogsWarning()
     {
-        // Arrange
         var addRequest = new AddBookRequest
         {
             Title = "New Book",
@@ -516,7 +459,6 @@ public class BookControllerTests
             Genre = "Fiction"
         };
 
-        // Setup empty claims
         var claims = new List<Claim>();
         var identity = new ClaimsIdentity(claims, "TestAuth");
         var claimsPrincipal = new ClaimsPrincipal(identity);
@@ -525,10 +467,8 @@ public class BookControllerTests
             HttpContext = new DefaultHttpContext { User = claimsPrincipal }
         };
 
-        // Act
         await _bookController.AddBook(addRequest);
 
-        // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Warning,
@@ -542,7 +482,6 @@ public class BookControllerTests
     [Test]
     public async Task AddBook_WhenServiceFails_LogsWarning()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var addRequest = new AddBookRequest
         {
@@ -556,7 +495,6 @@ public class BookControllerTests
             .Setup(x => x.AddBookAsync(userId, addRequest))
             .ReturnsAsync(Result<BookResponse>.Fail("Database error"));
 
-        // Setup user claims
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString())
@@ -568,10 +506,8 @@ public class BookControllerTests
             HttpContext = new DefaultHttpContext { User = claimsPrincipal }
         };
 
-        // Act
         await _bookController.AddBook(addRequest);
 
-        // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Warning,
@@ -585,7 +521,6 @@ public class BookControllerTests
     [Test]
     public async Task AddBook_WhenSuccessful_LogsInformation()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var bookId = Guid.NewGuid();
         var addRequest = new AddBookRequest
@@ -612,7 +547,6 @@ public class BookControllerTests
             .Setup(x => x.AddBookAsync(userId, addRequest))
             .ReturnsAsync(Result<BookResponse>.Ok(bookResponse));
 
-        // Setup user claims
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString())
@@ -624,10 +558,8 @@ public class BookControllerTests
             HttpContext = new DefaultHttpContext { User = claimsPrincipal }
         };
 
-        // Act
         await _bookController.AddBook(addRequest);
 
-        // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Information,
@@ -638,5 +570,515 @@ public class BookControllerTests
             Times.Once);
     }
 
-    #endregion
+    [Test]
+    public async Task UpdateBook_WithValidRequest_ReturnsOkWithUpdatedBook()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest
+        {
+            Title = "Updated Title",
+            Description = "Updated Description",
+            State = "Available",
+            Genre = "Fiction"
+        };
+
+        var updatedBook = new BookResponse
+        {
+            Id = bookId,
+            OwnerId = userId,
+            OwnerFirstName = "John",
+            OwnerLastName = "Doe",
+            Title = updateRequest.Title,
+            Description = updateRequest.Description,
+            State = updateRequest.State,
+            Genre = updateRequest.Genre,
+            Created = DateTime.UtcNow,
+            Modified = DateTime.UtcNow
+        };
+
+        _bookServiceMock
+            .Setup(x => x.UpdateBookAsync(bookId, userId, updateRequest))
+            .ReturnsAsync(Result<BookResponse>.Ok(updatedBook));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.UpdateBook(bookId, updateRequest);
+
+        Assert.That(result, Is.InstanceOf<OkObjectResult>());
+        var okResult = result as OkObjectResult;
+        Assert.That(okResult.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
+        Assert.That(okResult.Value, Is.EqualTo(updatedBook));
+
+        _bookServiceMock.Verify(x => x.UpdateBookAsync(bookId, userId, updateRequest), Times.Once);
+    }
+
+    [Test]
+    public async Task UpdateBook_WithInvalidModelState_ReturnsBadRequest()
+    {
+        var bookId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest
+        {
+            Title = new string('a', 200) // Exceeds max length
+        };
+
+        _bookController.ModelState.AddModelError("Title", "Title exceeds maximum length");
+
+        var result = await _bookController.UpdateBook(bookId, updateRequest);
+
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+
+        _bookServiceMock.Verify(x => x.UpdateBookAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<UpdateBookRequest>()), Times.Never);
+    }
+
+    [Test]
+    public async Task UpdateBook_WithMissingUserIdClaim_ReturnsUnauthorized()
+    {
+        var bookId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "Updated Title" };
+
+        var claims = new List<Claim>();
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.UpdateBook(bookId, updateRequest);
+
+        Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>());
+        var unauthorizedResult = result as UnauthorizedObjectResult;
+        Assert.That(unauthorizedResult.StatusCode, Is.EqualTo(StatusCodes.Status401Unauthorized));
+
+        _bookServiceMock.Verify(x => x.UpdateBookAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<UpdateBookRequest>()), Times.Never);
+    }
+
+    [Test]
+    public async Task UpdateBook_WithInvalidUserIdFormat_ReturnsUnauthorized()
+    {
+        var bookId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "Updated Title" };
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, "invalid-guid")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.UpdateBook(bookId, updateRequest);
+
+        Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>());
+        var unauthorizedResult = result as UnauthorizedObjectResult;
+        Assert.That(unauthorizedResult.StatusCode, Is.EqualTo(StatusCodes.Status401Unauthorized));
+
+        _bookServiceMock.Verify(x => x.UpdateBookAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<UpdateBookRequest>()), Times.Never);
+    }
+
+    [Test]
+    public async Task UpdateBook_WhenBookNotFound_ReturnsNotFound()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "Updated Title" };
+
+        _bookServiceMock
+            .Setup(x => x.UpdateBookAsync(bookId, userId, updateRequest))
+            .ReturnsAsync(Result<BookResponse>.Fail("Book not found"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.UpdateBook(bookId, updateRequest);
+
+        Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.That(notFoundResult.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
+    }
+
+    [Test]
+    public async Task UpdateBook_WhenUserIsNotOwner_ReturnsForbidden()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "Updated Title" };
+
+        _bookServiceMock
+            .Setup(x => x.UpdateBookAsync(bookId, userId, updateRequest))
+            .ReturnsAsync(Result<BookResponse>.Fail("You are not authorized to update this book"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.UpdateBook(bookId, updateRequest);
+
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        var objectResult = result as ObjectResult;
+        Assert.That(objectResult.StatusCode, Is.EqualTo(StatusCodes.Status403Forbidden));
+    }
+
+    [Test]
+    public async Task UpdateBook_WhenServiceReturnsOtherError_ReturnsBadRequest()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "Updated Title" };
+
+        _bookServiceMock
+            .Setup(x => x.UpdateBookAsync(bookId, userId, updateRequest))
+            .ReturnsAsync(Result<BookResponse>.Fail("Database error"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.UpdateBook(bookId, updateRequest);
+
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+    }
+
+    [Test]
+    public async Task UpdateBook_WhenServiceFails_LogsWarning()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "Updated Title" };
+
+        _bookServiceMock
+            .Setup(x => x.UpdateBookAsync(bookId, userId, updateRequest))
+            .ReturnsAsync(Result<BookResponse>.Fail("Update failed"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        await _bookController.UpdateBook(bookId, updateRequest);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to update book")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task UpdateBook_WhenSuccessful_LogsInformation()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateBookRequest { Title = "Updated Title" };
+
+        var updatedBook = new BookResponse
+        {
+            Id = bookId,
+            OwnerId = userId,
+            Title = updateRequest.Title,
+            Created = DateTime.UtcNow,
+            Modified = DateTime.UtcNow
+        };
+
+        _bookServiceMock
+            .Setup(x => x.UpdateBookAsync(bookId, userId, updateRequest))
+            .ReturnsAsync(Result<BookResponse>.Ok(updatedBook));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        await _bookController.UpdateBook(bookId, updateRequest);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Book") && v.ToString().Contains("updated successfully")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task DeleteBook_WithValidRequest_ReturnsNoContent()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        _bookServiceMock
+            .Setup(x => x.DeleteBookAsync(bookId, userId))
+            .ReturnsAsync(Result.Ok());
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.DeleteBook(bookId);
+
+        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        var noContentResult = result as NoContentResult;
+        Assert.That(noContentResult.StatusCode, Is.EqualTo(StatusCodes.Status204NoContent));
+
+        _bookServiceMock.Verify(x => x.DeleteBookAsync(bookId, userId), Times.Once);
+    }
+
+    [Test]
+    public async Task DeleteBook_WithMissingUserIdClaim_ReturnsUnauthorized()
+    {
+        var bookId = Guid.NewGuid();
+
+        var claims = new List<Claim>();
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.DeleteBook(bookId);
+
+        Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>());
+        var unauthorizedResult = result as UnauthorizedObjectResult;
+        Assert.That(unauthorizedResult.StatusCode, Is.EqualTo(StatusCodes.Status401Unauthorized));
+
+        _bookServiceMock.Verify(x => x.DeleteBookAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteBook_WithInvalidUserIdFormat_ReturnsUnauthorized()
+    {
+        var bookId = Guid.NewGuid();
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, "invalid-guid")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.DeleteBook(bookId);
+
+        Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>());
+        var unauthorizedResult = result as UnauthorizedObjectResult;
+        Assert.That(unauthorizedResult.StatusCode, Is.EqualTo(StatusCodes.Status401Unauthorized));
+
+        _bookServiceMock.Verify(x => x.DeleteBookAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteBook_WhenBookNotFound_ReturnsNotFound()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        _bookServiceMock
+            .Setup(x => x.DeleteBookAsync(bookId, userId))
+            .ReturnsAsync(Result.Fail("Book not found"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.DeleteBook(bookId);
+
+        Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.That(notFoundResult.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
+    }
+
+    [Test]
+    public async Task DeleteBook_WhenUserIsNotOwner_ReturnsForbidden()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        _bookServiceMock
+            .Setup(x => x.DeleteBookAsync(bookId, userId))
+            .ReturnsAsync(Result.Fail("You are not authorized to delete this book"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.DeleteBook(bookId);
+
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        var objectResult = result as ObjectResult;
+        Assert.That(objectResult.StatusCode, Is.EqualTo(StatusCodes.Status403Forbidden));
+    }
+
+    [Test]
+    public async Task DeleteBook_WhenServiceReturnsOtherError_ReturnsBadRequest()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        _bookServiceMock
+            .Setup(x => x.DeleteBookAsync(bookId, userId))
+            .ReturnsAsync(Result.Fail("Database error"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        var result = await _bookController.DeleteBook(bookId);
+
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+    }
+
+    [Test]
+    public async Task DeleteBook_WhenServiceFails_LogsWarning()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        _bookServiceMock
+            .Setup(x => x.DeleteBookAsync(bookId, userId))
+            .ReturnsAsync(Result.Fail("Delete failed"));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        await _bookController.DeleteBook(bookId);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to delete book")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task DeleteBook_WhenSuccessful_LogsInformation()
+    {
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        _bookServiceMock
+            .Setup(x => x.DeleteBookAsync(bookId, userId))
+            .ReturnsAsync(Result.Ok());
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
+
+        await _bookController.DeleteBook(bookId);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Book") && v.ToString().Contains("deleted successfully")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
 }
