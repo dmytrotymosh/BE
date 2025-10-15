@@ -416,3 +416,5 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+src/BE/.claude/settings.local.json
+src/BE/.idea/.idea.BE/.idea/workspace.xml

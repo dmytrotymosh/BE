@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BookLoop.Data.Models.Enums;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+using BookLoop.Data.Models.Enums;
 
-namespace BookLoop.Data.Models
+namespace DB.Models
 {
-    public class Exchange
+    public class Exchange :BaseEntity
     {
-        [Key]
-        [Column("id", TypeName = "uuid")]
-        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         [Column("book_id", TypeName = "uuid")]
         public Guid BookId { get; set; }
