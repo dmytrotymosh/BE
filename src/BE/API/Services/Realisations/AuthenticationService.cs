@@ -115,4 +115,42 @@ public class AuthenticationService(
         var jwtSettings = configuration.GetSection("JwtSettings");
         return int.TryParse(jwtSettings["ExpirationHours"], out var hours) ? hours : 24;
     }
+
+    public async Task<Result<AuthResponse>> UpdateProfileAsync(Guid userId, UpdateProfileRequest request)
+    {
+        var userResult = await userRepository.GetSingleAsync<User>(u => u.Id == userId);
+
+        if (!userResult.Success || userResult.Data == null)
+        {
+            return Result<AuthResponse>.Fail("User not found");
+        }
+        var user = userResult.Data;
+
+        user.FirstName = request.FirstName ?? user.FirstName;
+        user.LastName = request.LastName ?? user.LastName;
+        user.TimeZone = request.TimeZone ?? user.TimeZone;
+        user.Location = request.Location ?? user.Location;
+        user.Img = request.Img ?? user.Img;
+        user.Description = request.Description ?? user.Description;
+        
+        var updateResult = await userRepository.UpdateAsync(user);
+
+        if (!updateResult.Success)
+        {
+            return Result<AuthResponse>.Fail(updateResult.Error);
+        }
+        var token = GenerateJwtToken(user);
+        var expiresAt = DateTime.UtcNow.AddHours(GetTokenExpirationHours());
+        var response = new AuthResponse
+        {
+            UserId = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Token = token,
+            ExpiresAt = expiresAt
+        };
+
+        return Result<AuthResponse>.Ok(response);
+    }
 }

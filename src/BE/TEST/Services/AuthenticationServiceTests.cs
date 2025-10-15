@@ -404,4 +404,244 @@ public class AuthenticationServiceTests
     }
 
     #endregion
+
+    #region UpdateProfileAsync Tests
+
+    [Test]
+    public async Task UpdateProfileAsync_WithValidRequest_ReturnsSuccessWithUpdatedData()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var existingUser = new User
+        {
+            Id = userId,
+            Email = "john.doe@example.com",
+            FirstName = "John",
+            LastName = "Doe",
+            PasswordHash = "hashedpassword",
+            TimeZone = "UTC",
+            Location = "New York",
+            Img = "",
+            Description = ""
+        };
+
+        var updateRequest = new UpdateProfileRequest
+        {
+            FirstName = "Jane",
+            LastName = "Smith",
+            TimeZone = "EST",
+            Location = "Boston",
+            Img = "profile.jpg",
+            Description = "Software developer"
+        };
+
+        _userRepositoryMock
+            .Setup(x => x.GetSingleAsync<User>(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(),
+                null, null, false, default))
+            .ReturnsAsync(Result<User>.Ok(existingUser));
+
+        _userRepositoryMock
+            .Setup(x => x.UpdateAsync(It.IsAny<User>(), default))
+            .ReturnsAsync(Result.Ok());
+
+        // Act
+        var result = await _authenticationService.UpdateProfileAsync(userId, updateRequest);
+
+        // Assert
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+        Assert.That(result.Data.UserId, Is.EqualTo(userId));
+        Assert.That(result.Data.FirstName, Is.EqualTo(updateRequest.FirstName));
+        Assert.That(result.Data.LastName, Is.EqualTo(updateRequest.LastName));
+        Assert.That(result.Data.Token, Is.Not.Empty);
+        Assert.That(result.Data.ExpiresAt, Is.GreaterThan(DateTime.UtcNow));
+
+        _userRepositoryMock.Verify(x => x.UpdateAsync(It.Is<User>(u =>
+            u.FirstName == updateRequest.FirstName &&
+            u.LastName == updateRequest.LastName &&
+            u.TimeZone == updateRequest.TimeZone &&
+            u.Location == updateRequest.Location &&
+            u.Img == updateRequest.Img &&
+            u.Description == updateRequest.Description
+        ), default), Times.Once);
+    }
+
+    [Test]
+    public async Task UpdateProfileAsync_WithPartialUpdate_OnlyUpdatesProvidedFields()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var existingUser = new User
+        {
+            Id = userId,
+            Email = "john.doe@example.com",
+            FirstName = "John",
+            LastName = "Doe",
+            PasswordHash = "hashedpassword",
+            TimeZone = "UTC",
+            Location = "New York",
+            Img = "old.jpg",
+            Description = "Old description"
+        };
+
+        var updateRequest = new UpdateProfileRequest
+        {
+            FirstName = "Jane",
+            Location = "Boston"
+            // Other fields are null, should not be updated
+        };
+
+        _userRepositoryMock
+            .Setup(x => x.GetSingleAsync<User>(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(),
+                null, null, false, default))
+            .ReturnsAsync(Result<User>.Ok(existingUser));
+
+        _userRepositoryMock
+            .Setup(x => x.UpdateAsync(It.IsAny<User>(), default))
+            .ReturnsAsync(Result.Ok());
+
+        // Act
+        var result = await _authenticationService.UpdateProfileAsync(userId, updateRequest);
+
+        // Assert
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data.FirstName, Is.EqualTo("Jane"));
+
+        _userRepositoryMock.Verify(x => x.UpdateAsync(It.Is<User>(u =>
+            u.FirstName == "Jane" &&
+            u.LastName == "Doe" && // Should remain unchanged
+            u.Location == "Boston" &&
+            u.TimeZone == "UTC" && // Should remain unchanged
+            u.Img == "old.jpg" && // Should remain unchanged
+            u.Description == "Old description" // Should remain unchanged
+        ), default), Times.Once);
+    }
+
+    [Test]
+    public async Task UpdateProfileAsync_WithNonExistentUser_ReturnsFailure()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateProfileRequest
+        {
+            FirstName = "Jane"
+        };
+
+        _userRepositoryMock
+            .Setup(x => x.GetSingleAsync<User>(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(),
+                null, null, false, default))
+            .ReturnsAsync(Result<User>.Fail("Not found"));
+
+        // Act
+        var result = await _authenticationService.UpdateProfileAsync(userId, updateRequest);
+
+        // Assert
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("User not found"));
+        Assert.That(result.Data, Is.Null);
+
+        _userRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<User>(), default), Times.Never);
+    }
+
+    [Test]
+    public async Task UpdateProfileAsync_WhenRepositoryUpdateFails_ReturnsFailure()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var existingUser = new User
+        {
+            Id = userId,
+            Email = "john.doe@example.com",
+            FirstName = "John",
+            LastName = "Doe",
+            PasswordHash = "hashedpassword"
+        };
+
+        var updateRequest = new UpdateProfileRequest
+        {
+            FirstName = "Jane"
+        };
+
+        _userRepositoryMock
+            .Setup(x => x.GetSingleAsync<User>(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(),
+                null, null, false, default))
+            .ReturnsAsync(Result<User>.Ok(existingUser));
+
+        _userRepositoryMock
+            .Setup(x => x.UpdateAsync(It.IsAny<User>(), default))
+            .ReturnsAsync(Result.Fail("Database error"));
+
+        // Act
+        var result = await _authenticationService.UpdateProfileAsync(userId, updateRequest);
+
+        // Assert
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("Database error"));
+        Assert.That(result.Data, Is.Null);
+    }
+
+    [Test]
+    public async Task UpdateProfileAsync_GeneratesNewJwtToken()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var existingUser = new User
+        {
+            Id = userId,
+            Email = "john.doe@example.com",
+            FirstName = "John",
+            LastName = "Doe",
+            PasswordHash = "hashedpassword"
+        };
+
+        var updateRequest = new UpdateProfileRequest
+        {
+            FirstName = "Jane"
+        };
+
+        _userRepositoryMock
+            .Setup(x => x.GetSingleAsync<User>(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(),
+                null, null, false, default))
+            .ReturnsAsync(Result<User>.Ok(existingUser));
+
+        _userRepositoryMock
+            .Setup(x => x.UpdateAsync(It.IsAny<User>(), default))
+            .ReturnsAsync(Result.Ok());
+
+        // Act
+        var result = await _authenticationService.UpdateProfileAsync(userId, updateRequest);
+
+        // Assert
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data.Token, Is.Not.Empty);
+
+        // Verify token structure (JWT has 3 parts separated by dots)
+        var tokenParts = result.Data.Token.Split('.');
+        Assert.That(tokenParts.Length, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task UpdateProfileAsync_WhenUserResultIsNullData_ReturnsFailure()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var updateRequest = new UpdateProfileRequest
+        {
+            FirstName = "Jane"
+        };
+
+        _userRepositoryMock
+            .Setup(x => x.GetSingleAsync<User>(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(),
+                null, null, false, default))
+            .ReturnsAsync(new Result<User> { Success = true, Data = null });
+
+        // Act
+        var result = await _authenticationService.UpdateProfileAsync(userId, updateRequest);
+
+        // Assert
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.EqualTo("User not found"));
+    }
+
+    #endregion
 }
