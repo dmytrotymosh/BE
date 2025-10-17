@@ -7,6 +7,8 @@ public class BookResponse
     public string OwnerFirstName { get; set; } = string.Empty;
     public string OwnerLastName { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
+    public string Author {  get; set; } = string.Empty;
+    public string Language {  get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public string Genre { get; set; } = string.Empty;
