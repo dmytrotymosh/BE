@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB.Models
 {
-    public class Book :BaseEntity
+    public class Book : BaseEntity
     {
         [Required]
         [Column("owner_id", TypeName = "uuid")]
@@ -14,6 +14,14 @@ namespace DB.Models
         [MaxLength(100)]
         [Column("title", TypeName = "varchar(100)")]
         public string Title { get; set; }
+        [Required]
+        [MaxLength(100)]
+        [Column("author", TypeName = "varchar(100)")]
+        public string Author { get; set; }
+        [Required]
+        [MaxLength(50)]
+        [Column("language", TypeName = "varchar(50)")]
+        public string Language {  get; set; }
         [Required]
         [MaxLength(500)]
         [Column("description", TypeName = "varchar(500)")]

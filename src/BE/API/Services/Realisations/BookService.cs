@@ -33,6 +33,8 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
             OwnerFirstName = book.Owner?.FirstName ?? string.Empty,
             OwnerLastName = book.Owner?.LastName ?? string.Empty,
             Title = book.Title,
+            Author = book.Author,
+            Language = book.Language,
             Description = book.Description,
             State = book.State,
             Genre = book.Genre,
@@ -67,6 +69,8 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
             OwnerFirstName = book.Owner?.FirstName ?? string.Empty,
             OwnerLastName = book.Owner?.LastName ?? string.Empty,
             Title = book.Title,
+            Author = book.Author,
+            Language = book.Language,
             Description = book.Description,
             State = book.State,
             Genre = book.Genre,
@@ -83,6 +87,8 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
         {
             OwnerId = ownerId,
             Title = request.Title,
+            Author = request.Author,
+            Language = request.Language,
             Description = request.Description,
             State = request.State,
             Genre = request.Genre
@@ -119,6 +125,8 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
         }
 
         book.Title = request.Title ?? book.Title;
+        book.Author = request.Author ?? book.Author;
+        book.Language = request.Language ?? book.Language;
         book.Description = request.Description ?? book.Description;
         book.State = request.State ?? book.State;
         book.Genre = request.Genre ?? book.Genre;
