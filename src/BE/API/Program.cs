@@ -1,3 +1,5 @@
+using DB;
+using Microsoft.EntityFrameworkCore;
 using System.Text;
 using DB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +11,8 @@ namespace API;
 
 public class Program
 {
+    private const string CorsPolicyName = "Localhost3000";
+
     public static void Main(string[] args)
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -49,6 +53,20 @@ public class Program
 
         builder.Services.AddAuthorization();
 
+        // CORS policy allowing frontend on localhost:3000 (and 127.0.0.1:3000)
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(CorsPolicyName, policy =>
+            {
+                policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            });
+        });
+
+        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        builder.Services.AddOpenApi();
         builder.Services.AddControllers();
 
         builder.Services.AddEndpointsApiExplorer();
@@ -89,6 +107,22 @@ public class Program
 
         var app = builder.Build();
 
+        // Auto-apply pending EF Core migrations on startup
+        using (var scope = app.Services.CreateScope())
+        {
+            try
+            {
+                var db = scope.ServiceProvider.GetService<ApplicationDbContext>();
+                db?.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                // You might want to log this properly; for now write to console to avoid crashing startup
+                Console.WriteLine($"Failed to apply migrations: {ex.Message}");
+            }
+        }
+
+        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -101,6 +135,9 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthentication();
+        // Enable CORS
+        app.UseCors(CorsPolicyName);
+
         app.UseAuthorization();
 
         app.MapControllers();
