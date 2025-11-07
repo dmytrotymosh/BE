@@ -8,6 +8,7 @@ public class AuthResponse
     public string LastName { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string TimeZone {  get; set; } = string.Empty;
+    public string Location {  get; set; } = string.Empty;
     public string Token { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
 }

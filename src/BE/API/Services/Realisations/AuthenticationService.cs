@@ -78,6 +78,7 @@ public class AuthenticationService(
             LastName = user.LastName,
             Description = user.Description,
             TimeZone = user.TimeZone,
+            Location = user.Location,
             Token = token,
             ExpiresAt = expiresAt
         };
