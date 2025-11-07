@@ -1,23 +1,46 @@
 using API.Services.Interfaces;
+using API.Services.Realisations.Utilites;
 using BookLoop.Data.Models;
 using DB.DTOs;
 using DB.Models;
 using DB.Repository;
 using DB.Repository.Utilites;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace API.Services.Realisations;
 
 public class BookService(IGenericRepository<Book> bookRepository) : IBookService
 {
-    public async Task<Result<IEnumerable<BookResponse>>> GetBooksAsync(Guid? ownerId = null)
+    public async Task<Result<IEnumerable<BookResponse>>> GetBooksAsync(BookFilterRequest request = null)
     {
         var includes = new List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>
         {
             query => query.Include(b => b.Owner)
         };
+
+        Expression<Func<Book, bool>> filter = b => true;
+
+        if (request is not null)
+        {
+            if (!string.IsNullOrEmpty(request.Title))
+                filter = filter.And(b => b.Title.ToLower().Contains(request.Title.ToLower()));
+            if (!string.IsNullOrEmpty(request.Author))
+                filter = filter.And(b => b.Author.ToLower().Contains(request.Author.ToLower()));
+            if (!string.IsNullOrEmpty(request.Language))
+                filter = filter.And(b => b.Language.ToLower().Contains(request.Language.ToLower()));
+            if (!string.IsNullOrEmpty(request.Description))
+                filter = filter.And(b => b.Description.ToLower().Contains(request.Description.ToLower()));
+            if (!string.IsNullOrEmpty(request.State))
+                filter = filter.And(b => b.State.ToLower().Contains(request.State.ToLower()));
+            if (!string.IsNullOrEmpty(request.Genre))
+                filter = filter.And(b => b.Genre.ToLower().Contains(request.Genre.ToLower()));
+            if (request.OwnerId.HasValue)
+                filter = filter.And(b => b.OwnerId == request.OwnerId.Value);
+        }
+
         var booksResult = await bookRepository.GetListAsync<Book>(
-            filter: ownerId.HasValue ? b => b.OwnerId == ownerId.Value : null,
+            filter: filter,
             includes: includes,
             selector: null
         );
@@ -100,7 +123,7 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
         {
             return Result<BookResponse>.Fail(addResult.Error);
         }
-        
+
         return await GetBookByIdAsync(book.Id);
     }
 

@@ -99,11 +99,16 @@ public class BookControllerTests
             }
         };
 
+        var request = new BookFilterRequest
+        {
+            OwnerId = ownerId
+        };
+
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(ownerId))
+            .Setup(x => x.GetBooksAsync(request))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
-        var result = await _bookController.GetBooks(ownerId);
+        var result = await _bookController.GetBooks(request);
 
         Assert.That(result, Is.InstanceOf<OkObjectResult>());
         var okResult = result as OkObjectResult;
@@ -114,7 +119,7 @@ public class BookControllerTests
         Assert.That(returnedBooks.Count(), Is.EqualTo(1));
         Assert.That(returnedBooks.First().OwnerId, Is.EqualTo(ownerId));
 
-        _bookServiceMock.Verify(x => x.GetBooksAsync(ownerId), Times.Once);
+        _bookServiceMock.Verify(x => x.GetBooksAsync(request), Times.Once);
     }
 
     [Test]

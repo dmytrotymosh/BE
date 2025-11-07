@@ -16,9 +16,9 @@ public class BookController(
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<BookResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GetBooks([FromQuery] Guid? ownerId = null)
+    public async Task<ActionResult> GetBooks([FromQuery] BookFilterRequest? request = null)
     {
-        var result = await bookService.GetBooksAsync(ownerId);
+        var result = await bookService.GetBooksAsync(request);
 
         if (!result.Success)
         {
