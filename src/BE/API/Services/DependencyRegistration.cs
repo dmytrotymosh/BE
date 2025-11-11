@@ -9,6 +9,8 @@ public class DependencyRegistration
     {
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IBookService, BookService>();
+        services.AddScoped<IExchangeService, ExchangeService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }

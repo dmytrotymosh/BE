@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading.Tasks;
+﻿namespace DB.Models.Enums;
 
-namespace BookLoop.Data.Models.Enums
+public enum ExchangeStatus
 {
-    public enum ExchangeStatus
-    {
-        Pending,
-        Accepted,
-        Declined,
-        Completed
-    }
+    Pending,
+    Accepted,
+    Declined
 }
