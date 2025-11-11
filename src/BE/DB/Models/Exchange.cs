@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BookLoop.Data.Models.Enums;
+using DB.Models.Enums;
 
 namespace DB.Models
 {
