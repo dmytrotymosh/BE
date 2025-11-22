@@ -44,9 +44,12 @@ public class AuthenticationService(
         var expiresAt = DateTime.UtcNow.AddHours(GetTokenExpirationHours());
         var response = new AuthResponse
         {
+            UserId = user.Id,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Description = user.Description,
+            TimeZone = user.TimeZone,
             Token = token,
             ExpiresAt = expiresAt
         };
