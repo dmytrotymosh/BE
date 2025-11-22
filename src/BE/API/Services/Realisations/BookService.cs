@@ -27,7 +27,7 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
             if (!string.IsNullOrEmpty(request.Author))
                 filter = filter.And(b => b.Author.ToLower().Contains(request.Author.ToLower()));
             if (!string.IsNullOrEmpty(request.Language))
-                filter = filter.And(b => b.Language.ToLower().Contains(request.Language.ToLower()));
+                filter = filter.And(b => b.Language.Name.ToLower().Contains(request.Language.ToLower()));
             if (!string.IsNullOrEmpty(request.Description))
                 filter = filter.And(b => b.Description.ToLower().Contains(request.Description.ToLower()));
             if (!string.IsNullOrEmpty(request.State))

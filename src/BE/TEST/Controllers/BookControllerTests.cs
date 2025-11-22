@@ -67,7 +67,7 @@ public class BookControllerTests
         };
 
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null, null))
+            .Setup(x => x.GetBooksAsync(null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
         // Act
@@ -82,7 +82,7 @@ public class BookControllerTests
         Assert.That(returnedBooks, Is.Not.Null);
         Assert.That(returnedBooks.Count(), Is.EqualTo(2));
 
-        _bookServiceMock.Verify(x => x.GetBooksAsync(null, null), Times.Once);
+        _bookServiceMock.Verify(x => x.GetBooksAsync(null), Times.Once);
     }
 
     [Test]
@@ -133,7 +133,7 @@ public class BookControllerTests
     public async Task GetBooks_WhenServiceFails_ReturnsBadRequest()
     {
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null, null))
+            .Setup(x => x.GetBooksAsync(null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Fail("Database error"));
 
         var result = await _bookController.GetBooks();
@@ -147,7 +147,7 @@ public class BookControllerTests
     public async Task GetBooks_WhenServiceFails_LogsWarning()
     {
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null, null))
+            .Setup(x => x.GetBooksAsync(null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Fail("Database error"));
 
         await _bookController.GetBooks();
@@ -172,7 +172,7 @@ public class BookControllerTests
         };
 
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null, null))
+            .Setup(x => x.GetBooksAsync(null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
         await _bookController.GetBooks();
