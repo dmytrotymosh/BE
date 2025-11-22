@@ -19,9 +19,10 @@ namespace DB.Models
         [Column("author", TypeName = "varchar(100)")]
         public string Author { get; set; }
         [Required]
-        [MaxLength(50)]
-        [Column("language", TypeName = "varchar(50)")]
-        public string Language {  get; set; }
+        [Column("language_id", TypeName = "uuid")]
+        public Guid LanguageId { get; set; }
+        [ForeignKey("LanguageId")]
+        public Language Language { get; set; }
         [Required]
         [MaxLength(500)]
         [Column("description", TypeName = "varchar(500)")]

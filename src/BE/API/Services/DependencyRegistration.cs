@@ -9,6 +9,7 @@ public class DependencyRegistration
     {
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IBookService, BookService>();
+        services.AddScoped<ILanguageService, LanguageService>();
 
         return services;
     }
