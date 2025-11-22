@@ -23,6 +23,13 @@ public class BookControllerTests
         _bookServiceMock = new Mock<IBookService>();
         _loggerMock = new Mock<ILogger<BookController>>();
         _bookController = new BookController(_bookServiceMock.Object, _loggerMock.Object);
+
+        var identity = new ClaimsIdentity();
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
     }
 
     [Test]

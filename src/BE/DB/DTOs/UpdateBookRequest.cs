@@ -10,8 +10,7 @@ public class UpdateBookRequest
     [StringLength(100)]
     public string? Author {  get; set; }
 
-    [StringLength(50)]
-    public string? Language {  get; set; }
+    public Guid? LanguageId { get; set; }
 
     [StringLength(500)]
     public string? Description { get; set; }

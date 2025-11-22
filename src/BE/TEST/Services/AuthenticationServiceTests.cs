@@ -64,9 +64,11 @@ public class AuthenticationServiceTests
         // Assert
         Assert.That(result.Success, Is.True);
         Assert.That(result.Data, Is.Not.Null);
+        Assert.That(result.Data.UserId, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.Data.Email, Is.EqualTo(registerRequest.Email));
         Assert.That(result.Data.FirstName, Is.EqualTo(registerRequest.FirstName));
         Assert.That(result.Data.LastName, Is.EqualTo(registerRequest.LastName));
+        Assert.That(result.Data.TimeZone, Is.EqualTo(registerRequest.TimeZone));
         Assert.That(result.Data.Token, Is.Not.Empty);
         Assert.That(result.Data.ExpiresAt, Is.GreaterThan(DateTime.UtcNow));
 

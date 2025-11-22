@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Exchange> Exchanges { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<Language> Languages { get; set; }
 
     public override int SaveChanges()
     {
@@ -54,6 +55,11 @@ public class ApplicationDbContext : DbContext
                   .WithMany(u => u.Books)
                   .HasForeignKey(b => b.OwnerId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(b => b.Language)
+                  .WithMany()
+                  .HasForeignKey(b => b.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
         modelBuilder.Entity<Exchange>(entity =>
         {

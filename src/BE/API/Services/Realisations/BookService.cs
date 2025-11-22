@@ -15,7 +15,7 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
     {
         var includes = new List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>
         {
-            query => query.Include(b => b.Owner)
+            query => query.Include(b => b.Owner).Include(b => b.Language)
         };
 
         Expression<Func<Book, bool>> filter = b => true;
@@ -27,7 +27,7 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
             if (!string.IsNullOrEmpty(request.Author))
                 filter = filter.And(b => b.Author.ToLower().Contains(request.Author.ToLower()));
             if (!string.IsNullOrEmpty(request.Language))
-                filter = filter.And(b => b.Language.ToLower().Contains(request.Language.ToLower()));
+                filter = filter.And(b => b.Language.Name.ToLower().Contains(request.Language.ToLower()));
             if (!string.IsNullOrEmpty(request.Description))
                 filter = filter.And(b => b.Description.ToLower().Contains(request.Description.ToLower()));
             if (!string.IsNullOrEmpty(request.State))
@@ -56,7 +56,9 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
             OwnerLastName = book.Owner?.LastName ?? string.Empty,
             Title = book.Title,
             Author = book.Author,
-            Language = book.Language,
+            LanguageId = book.LanguageId,
+            LanguageName = book.Language?.Name ?? string.Empty,
+            LanguageCode = book.Language?.Code ?? string.Empty,
             Description = book.Description,
             State = book.State,
             Genre = book.Genre,
@@ -71,7 +73,7 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
     {
         var includes = new List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>
         {
-            query => query.Include(b => b.Owner)
+            query => query.Include(b => b.Owner).Include(b => b.Language)
         };
         var bookResult = await bookRepository.GetSingleAsync<Book>(
             filter: b => b.Id == bookId,
@@ -92,7 +94,9 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
             OwnerLastName = book.Owner?.LastName ?? string.Empty,
             Title = book.Title,
             Author = book.Author,
-            Language = book.Language,
+            LanguageId = book.LanguageId,
+            LanguageName = book.Language?.Name ?? string.Empty,
+            LanguageCode = book.Language?.Code ?? string.Empty,
             Description = book.Description,
             State = book.State,
             Genre = book.Genre,
@@ -110,7 +114,7 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
             OwnerId = ownerId,
             Title = request.Title,
             Author = request.Author,
-            Language = request.Language,
+            LanguageId = request.LanguageId,
             Description = request.Description,
             State = request.State,
             Genre = request.Genre
@@ -148,7 +152,7 @@ public class BookService(IGenericRepository<Book> bookRepository) : IBookService
 
         book.Title = request.Title ?? book.Title;
         book.Author = request.Author ?? book.Author;
-        book.Language = request.Language ?? book.Language;
+        book.LanguageId = request.LanguageId ?? book.LanguageId;
         book.Description = request.Description ?? book.Description;
         book.State = request.State ?? book.State;
         book.Genre = request.Genre ?? book.Genre;
