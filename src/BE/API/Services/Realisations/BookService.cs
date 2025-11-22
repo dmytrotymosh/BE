@@ -5,19 +5,36 @@ using DB.Models;
 using DB.Repository;
 using DB.Repository.Utilites;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace API.Services.Realisations;
 
 public class BookService(IGenericRepository<Book> bookRepository) : IBookService
 {
-    public async Task<Result<IEnumerable<BookResponse>>> GetBooksAsync(Guid? ownerId = null)
+    public async Task<Result<IEnumerable<BookResponse>>> GetBooksAsync(Guid? ownerId = null, Guid? excludeUserId = null)
     {
         var includes = new List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>
         {
             query => query.Include(b => b.Owner).Include(b => b.Language)
         };
+
+        // Build filter expression
+        Expression<Func<Book, bool>>? filter = null;
+        if (ownerId.HasValue && excludeUserId.HasValue)
+        {
+            filter = b => b.OwnerId == ownerId.Value && b.OwnerId != excludeUserId.Value;
+        }
+        else if (ownerId.HasValue)
+        {
+            filter = b => b.OwnerId == ownerId.Value;
+        }
+        else if (excludeUserId.HasValue)
+        {
+            filter = b => b.OwnerId != excludeUserId.Value;
+        }
+
         var booksResult = await bookRepository.GetListAsync<Book>(
-            filter: ownerId.HasValue ? b => b.OwnerId == ownerId.Value : null,
+            filter: filter,
             includes: includes,
             selector: null
         );

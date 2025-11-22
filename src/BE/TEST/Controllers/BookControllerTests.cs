@@ -23,6 +23,14 @@ public class BookControllerTests
         _bookServiceMock = new Mock<IBookService>();
         _loggerMock = new Mock<ILogger<BookController>>();
         _bookController = new BookController(_bookServiceMock.Object, _loggerMock.Object);
+
+        // Setup default HttpContext with empty user
+        var identity = new ClaimsIdentity();
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+        _bookController.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+        };
     }
 
     [Test]
@@ -60,7 +68,7 @@ public class BookControllerTests
         };
 
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null))
+            .Setup(x => x.GetBooksAsync(null, null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
         // Act
@@ -75,7 +83,7 @@ public class BookControllerTests
         Assert.That(returnedBooks, Is.Not.Null);
         Assert.That(returnedBooks.Count(), Is.EqualTo(2));
 
-        _bookServiceMock.Verify(x => x.GetBooksAsync(null), Times.Once);
+        _bookServiceMock.Verify(x => x.GetBooksAsync(null, null), Times.Once);
     }
 
     [Test]
@@ -100,7 +108,7 @@ public class BookControllerTests
         };
 
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(ownerId))
+            .Setup(x => x.GetBooksAsync(ownerId, null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
         var result = await _bookController.GetBooks(ownerId);
@@ -114,14 +122,14 @@ public class BookControllerTests
         Assert.That(returnedBooks.Count(), Is.EqualTo(1));
         Assert.That(returnedBooks.First().OwnerId, Is.EqualTo(ownerId));
 
-        _bookServiceMock.Verify(x => x.GetBooksAsync(ownerId), Times.Once);
+        _bookServiceMock.Verify(x => x.GetBooksAsync(ownerId, null), Times.Once);
     }
 
     [Test]
     public async Task GetBooks_WhenServiceFails_ReturnsBadRequest()
     {
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null))
+            .Setup(x => x.GetBooksAsync(null, null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Fail("Database error"));
 
         var result = await _bookController.GetBooks();
@@ -135,7 +143,7 @@ public class BookControllerTests
     public async Task GetBooks_WhenServiceFails_LogsWarning()
     {
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null))
+            .Setup(x => x.GetBooksAsync(null, null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Fail("Database error"));
 
         await _bookController.GetBooks();
@@ -160,7 +168,7 @@ public class BookControllerTests
         };
 
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(null))
+            .Setup(x => x.GetBooksAsync(null, null))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
         await _bookController.GetBooks();

@@ -18,7 +18,16 @@ public class BookController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> GetBooks([FromQuery] Guid? ownerId = null)
     {
-        var result = await bookService.GetBooksAsync(ownerId);
+        Guid? currentUserId = null;
+
+        // Get current user ID if authenticated
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userIdClaim) && Guid.TryParse(userIdClaim, out var userId))
+        {
+            currentUserId = userId;
+        }
+
+        var result = await bookService.GetBooksAsync(ownerId, currentUserId);
 
         if (!result.Success)
         {
