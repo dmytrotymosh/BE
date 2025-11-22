@@ -11,6 +11,8 @@ public class DependencyRegistration
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<ILanguageService, LanguageService>();
         services.AddScoped<IGenreService, GenreService>();
+        services.AddScoped<IExchangeService, ExchangeService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }

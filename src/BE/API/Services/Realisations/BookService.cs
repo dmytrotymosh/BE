@@ -1,5 +1,5 @@
 using API.Services.Interfaces;
-using BookLoop.Data.Models;
+using API.Services.Realisations.Utilites;
 using DB.DTOs;
 using DB.Models;
 using DB.Repository;
@@ -11,26 +11,31 @@ namespace API.Services.Realisations;
 
 public class BookService(IGenericRepository<Book> bookRepository) : IBookService
 {
-    public async Task<Result<IEnumerable<BookResponse>>> GetBooksAsync(Guid? ownerId = null, Guid? excludeUserId = null)
+    public async Task<Result<IEnumerable<BookResponse>>> GetBooksAsync(BookFilterRequest request = null)
     {
         var includes = new List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>
         {
             query => query.Include(b => b.Owner).Include(b => b.Language)
         };
 
-        // Build filter expression
-        Expression<Func<Book, bool>>? filter = null;
-        if (ownerId.HasValue && excludeUserId.HasValue)
+        Expression<Func<Book, bool>> filter = b => true;
+
+        if (request is not null)
         {
-            filter = b => b.OwnerId == ownerId.Value && b.OwnerId != excludeUserId.Value;
-        }
-        else if (ownerId.HasValue)
-        {
-            filter = b => b.OwnerId == ownerId.Value;
-        }
-        else if (excludeUserId.HasValue)
-        {
-            filter = b => b.OwnerId != excludeUserId.Value;
+            if (!string.IsNullOrEmpty(request.Title))
+                filter = filter.And(b => b.Title.ToLower().Contains(request.Title.ToLower()));
+            if (!string.IsNullOrEmpty(request.Author))
+                filter = filter.And(b => b.Author.ToLower().Contains(request.Author.ToLower()));
+            if (!string.IsNullOrEmpty(request.Language))
+                filter = filter.And(b => b.Language.ToLower().Contains(request.Language.ToLower()));
+            if (!string.IsNullOrEmpty(request.Description))
+                filter = filter.And(b => b.Description.ToLower().Contains(request.Description.ToLower()));
+            if (!string.IsNullOrEmpty(request.State))
+                filter = filter.And(b => b.State.ToLower().Contains(request.State.ToLower()));
+            if (!string.IsNullOrEmpty(request.Genre))
+                filter = filter.And(b => b.Genre.ToLower().Contains(request.Genre.ToLower()));
+            if (request.OwnerId.HasValue)
+                filter = filter.And(b => b.OwnerId == request.OwnerId.Value);
         }
 
         var booksResult = await bookRepository.GetListAsync<Book>(

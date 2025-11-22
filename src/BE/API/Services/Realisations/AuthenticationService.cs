@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API.Services.Interfaces;
-using BookLoop.Data.Models;
 using DB.DTOs;
 using DB.Models;
 using DB.Repository;
@@ -81,6 +80,7 @@ public class AuthenticationService(
             LastName = user.LastName,
             Description = user.Description,
             TimeZone = user.TimeZone,
+            Location = user.Location,
             Token = token,
             ExpiresAt = expiresAt
         };

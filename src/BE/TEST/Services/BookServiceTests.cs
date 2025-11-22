@@ -80,6 +80,10 @@ public class BookServiceTests
     public async Task GetBooksAsync_WithOwnerIdFilter_ReturnsFilteredBooks()
     {
         var ownerId = Guid.NewGuid();
+        var request = new BookFilterRequest
+        {
+            OwnerId = ownerId
+        };
         var books = new List<Book>
         {
             new Book
@@ -108,7 +112,7 @@ public class BookServiceTests
                 default))
             .ReturnsAsync(Result<IEnumerable<Book>>.Ok(books));
 
-        var result = await _bookService.GetBooksAsync(ownerId);
+        var result = await _bookService.GetBooksAsync(request);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Data, Is.Not.Null);

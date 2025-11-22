@@ -24,7 +24,6 @@ public class BookControllerTests
         _loggerMock = new Mock<ILogger<BookController>>();
         _bookController = new BookController(_bookServiceMock.Object, _loggerMock.Object);
 
-        // Setup default HttpContext with empty user
         var identity = new ClaimsIdentity();
         var claimsPrincipal = new ClaimsPrincipal(identity);
         _bookController.ControllerContext = new ControllerContext
@@ -107,11 +106,16 @@ public class BookControllerTests
             }
         };
 
+        var request = new BookFilterRequest
+        {
+            OwnerId = ownerId
+        };
+
         _bookServiceMock
-            .Setup(x => x.GetBooksAsync(ownerId, null))
+            .Setup(x => x.GetBooksAsync(request))
             .ReturnsAsync(Result<IEnumerable<BookResponse>>.Ok(books));
 
-        var result = await _bookController.GetBooks(ownerId);
+        var result = await _bookController.GetBooks(request);
 
         Assert.That(result, Is.InstanceOf<OkObjectResult>());
         var okResult = result as OkObjectResult;
@@ -122,7 +126,7 @@ public class BookControllerTests
         Assert.That(returnedBooks.Count(), Is.EqualTo(1));
         Assert.That(returnedBooks.First().OwnerId, Is.EqualTo(ownerId));
 
-        _bookServiceMock.Verify(x => x.GetBooksAsync(ownerId, null), Times.Once);
+        _bookServiceMock.Verify(x => x.GetBooksAsync(request), Times.Once);
     }
 
     [Test]

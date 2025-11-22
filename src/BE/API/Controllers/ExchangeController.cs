@@ -8,49 +8,41 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BookController(
-    IBookService bookService,
-    ILogger<BookController> logger)
+public class ExchangeController(
+    IExchangeService exchangeService,
+    ILogger<ExchangeController> logger)
     : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<BookResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<ExchangeResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GetBooks([FromQuery] BookFilterRequest? request = null)
+    public async Task<ActionResult> GetExchanges([FromQuery] ExchangeFilterRequest? request = null)
     {
-        Guid? currentUserId = null;
-
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!string.IsNullOrEmpty(userIdClaim) && Guid.TryParse(userIdClaim, out var userId))
-        {
-            currentUserId = userId;
-        }
-
-        var result = await bookService.GetBooksAsync(request);
+        var result = await exchangeService.GetExchangesAsync(request);
 
         if (!result.Success)
         {
-            logger.LogWarning("Failed to retrieve books: {Error}", result.Error);
+            logger.LogWarning("Failed to retrieve exchanges: {Error}", result.Error);
             return BadRequest(new { error = result.Error });
         }
 
-        logger.LogInformation("Retrieved {Count} books", result.Data.Count());
+        logger.LogInformation("Retrieved {Count} exchanges", result.Data.Count());
         return Ok(result.Data);
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(BookResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ExchangeResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GetBookById(Guid id)
+    public async Task<ActionResult> GetExchangeById(Guid id)
     {
-        var result = await bookService.GetBookByIdAsync(id);
+        var result = await exchangeService.GetExchangeByIdAsync(id);
 
         if (!result.Success)
         {
-            logger.LogWarning("Failed to retrieve book {BookId}: {Error}", id, result.Error);
+            logger.LogWarning("Failed to retrieve exchange {ExchangeId}: {Error}", id, result.Error);
 
-            if (result.Error == "Book not found")
+            if (result.Error == "Exchange not found")
             {
                 return NotFound(new { error = result.Error });
             }
@@ -58,16 +50,16 @@ public class BookController(
             return BadRequest(new { error = result.Error });
         }
 
-        logger.LogInformation("Retrieved book {BookId}", id);
+        logger.LogInformation("Retrieved exchange {ExchangeId}", id);
         return Ok(result.Data);
     }
 
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(BookResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ExchangeResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult> AddBook([FromBody] AddBookRequest request)
+    public async Task<ActionResult> AddExchange([FromBody] AddExchangeRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -81,16 +73,16 @@ public class BookController(
             return Unauthorized(new { error = "Invalid token" });
         }
 
-        var result = await bookService.AddBookAsync(userId, request);
+        var result = await exchangeService.AddExchangeAsync(userId, request);
 
         if (!result.Success)
         {
-            logger.LogWarning("Failed to add book for user {UserId}: {Error}", userId, result.Error);
+            logger.LogWarning("Failed to add exchange from user {UserId} to user {UserId}: {Error}", userId, request.OwnerId, result.Error);
             return BadRequest(new { error = result.Error });
         }
 
-        logger.LogInformation("Book {BookId} added successfully for user {UserId}", result.Data.Id, userId);
-        return CreatedAtAction(nameof(GetBookById), new { id = result.Data.Id }, result.Data);
+        logger.LogInformation("Exchange {ExchangeId} wasd added successfully", result.Data.Id);
+        return CreatedAtAction(nameof(GetExchangeById), new { id = result.Data.Id }, result.Data);
     }
 
     [HttpPut("{id}")]
@@ -100,7 +92,7 @@ public class BookController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> UpdateBook(Guid id, [FromBody] UpdateBookRequest request)
+    public async Task<ActionResult> UpdateExchange(Guid id, [FromBody] UpdateExchangeRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -114,18 +106,18 @@ public class BookController(
             return Unauthorized(new { error = "Invalid token" });
         }
 
-        var result = await bookService.UpdateBookAsync(id, userId, request);
+        var result = await exchangeService.UpdateExchangeAsync(id, userId, request);
 
         if (!result.Success)
         {
-            logger.LogWarning("Failed to update book {BookId} for user {UserId}: {Error}", id, userId, result.Error);
+            logger.LogWarning("Failed to update exchange {ExchangeId} for user {UserId}: {Error}", id, userId, result.Error);
 
-            if (result.Error == "Book not found")
+            if (result.Error == "Exchange not found")
             {
                 return NotFound(new { error = result.Error });
             }
 
-            if (result.Error == "You are not authorized to update this book")
+            if (result.Error == "You are not authorized to update this exchange")
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error });
             }
@@ -133,7 +125,7 @@ public class BookController(
             return BadRequest(new { error = result.Error });
         }
 
-        logger.LogInformation("Book {BookId} updated successfully by user {UserId}", id, userId);
+        logger.LogInformation("Exchange {ExchangeId} updated successfully by user {UserId}", id, userId);
         return Ok(result.Data);
     }
 
@@ -144,7 +136,7 @@ public class BookController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> DeleteBook(Guid id)
+    public async Task<ActionResult> DeleteExchange(Guid id)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
@@ -153,18 +145,18 @@ public class BookController(
             return Unauthorized(new { error = "Invalid token" });
         }
 
-        var result = await bookService.DeleteBookAsync(id, userId);
+        var result = await exchangeService.DeleteExchangeAsync(id, userId);
 
         if (!result.Success)
         {
-            logger.LogWarning("Failed to delete book {BookId} for user {UserId}: {Error}", id, userId, result.Error);
+            logger.LogWarning("Failed to delete exchange {ExchangeId} for user {UserId}: {Error}", id, userId, result.Error);
 
-            if (result.Error == "Book not found")
+            if (result.Error == "Exchange not found")
             {
                 return NotFound(new { error = result.Error });
             }
 
-            if (result.Error == "You are not authorized to delete this book")
+            if (result.Error == "You are not authorized to delete this exchange")
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error });
             }
@@ -172,7 +164,7 @@ public class BookController(
             return BadRequest(new { error = result.Error });
         }
 
-        logger.LogInformation("Book {BookId} deleted successfully by user {UserId}", id, userId);
+        logger.LogInformation("Exchange {ExchangeId} deleted successfully by user {UserId}", id, userId);
         return NoContent();
     }
 }
