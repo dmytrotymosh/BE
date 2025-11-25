@@ -86,6 +86,10 @@ public class ApplicationDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(c => c.UserId2)
                   .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(c => c.Exchange)
+                  .WithMany()
+                  .HasForeignKey(c => c.ExchangeId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
         modelBuilder.Entity<Message>(entity =>
         {

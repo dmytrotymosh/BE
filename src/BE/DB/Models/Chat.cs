@@ -15,6 +15,10 @@ namespace DB.Models
         public Guid UserId2 { get; set; }
         [ForeignKey("UserId2")]
         public User User2 { get; set; }
+        [Column("exchange_id", TypeName = "uuid")]
+        public Guid? ExchangeId { get; set; }
+        [ForeignKey("ExchangeId")]
+        public Exchange? Exchange { get; set; }
         public ICollection<Message> Messages { get; set; } = new List<Message>();
     }
 }
