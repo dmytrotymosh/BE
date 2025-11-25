@@ -57,7 +57,8 @@ public class Program
                     var path = context.HttpContext.Request.Path;
 
                     if (!string.IsNullOrEmpty(accessToken) &&
-                        path.StartsWithSegments("/hubs/notifications"))
+                        (path.StartsWithSegments("/hubs/notifications") ||
+                         path.StartsWithSegments("/hubs/chat")))
                     {
                         context.Token = accessToken;
                     }
@@ -159,6 +160,7 @@ public class Program
         app.MapControllers();
 
         app.MapHub<NotificationHub>("/hubs/notifications");
+        app.MapHub<ChatHub>("/hubs/chat");
 
         app.Run();
     }
