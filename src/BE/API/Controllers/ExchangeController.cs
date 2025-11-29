@@ -54,6 +54,45 @@ public class ExchangeController(
         return Ok(result.Data);
     }
 
+    [HttpGet("{id}/details")]
+    [Authorize]
+    [ProducesResponseType(typeof(ExchangeDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> GetExchangeDetails(Guid id)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            logger.LogWarning("Invalid user ID in token");
+            return Unauthorized(new { error = "Invalid token" });
+        }
+
+        var result = await exchangeService.GetExchangeDetailsAsync(id, userId);
+
+        if (!result.Success)
+        {
+            logger.LogWarning("Failed to retrieve exchange details {ExchangeId}: {Error}", id, result.Error);
+
+            if (result.Error == "Exchange not found" || result.Error == "Requester not found")
+            {
+                return NotFound(new { error = result.Error });
+            }
+
+            if (result.Error == "You are not authorized to view this exchange details")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error });
+            }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        logger.LogInformation("Retrieved exchange details {ExchangeId} by user {UserId}", id, userId);
+        return Ok(result.Data);
+    }
+
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(ExchangeResponse), StatusCodes.Status201Created)]

@@ -12,7 +12,9 @@ namespace API.Services.Realisations;
 
 public class ExchangeService(
     IGenericRepository<Exchange> exchangeRepository,
-    INotificationService notificationService) 
+    IGenericRepository<Book> bookRepository,
+    IGenericRepository<User> userRepository,
+    INotificationService notificationService)
     : IExchangeService
 {
     public async Task<Result<IEnumerable<ExchangeResponse>>> GetExchangesAsync(ExchangeFilterRequest request = null)
@@ -117,6 +119,121 @@ public class ExchangeService(
         return Result<ExchangeResponse>.Ok(exchangeResponse);
     }
 
+    public async Task<Result<ExchangeDetailsResponse>> GetExchangeDetailsAsync(Guid exchangeId, Guid userId)
+    {
+        var includes = new List<Func<IQueryable<Exchange>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Exchange, object>>>
+        {
+            query => query
+                .Include(e => e.Book)
+                .Include(e => e.Owner)
+                .Include(e => e.Receiver)
+        };
+
+        var exchangeResult = await exchangeRepository.GetSingleAsync<Exchange>(
+            filter: e => e.Id == exchangeId,
+            includes: includes,
+            selector: null
+        );
+
+        if (!exchangeResult.Success || exchangeResult.Data == null)
+        {
+            return Result<ExchangeDetailsResponse>.Fail("Exchange not found");
+        }
+
+        var exchange = exchangeResult.Data;
+
+        if (exchange.OwnerId != userId && exchange.ReceiverId != userId)
+        {
+            return Result<ExchangeDetailsResponse>.Fail("You are not authorized to view this exchange details");
+        }
+
+        var exchangeResponse = new ExchangeResponse
+        {
+            Id = exchange.Id,
+            BookId = exchange.Book.Id,
+            BookTitle = exchange.Book.Title,
+            OwnerId = exchange.OwnerId,
+            OwnerFirstName = exchange.Owner?.FirstName ?? string.Empty,
+            OwnerLastName = exchange.Owner?.LastName ?? string.Empty,
+            ReceiverId = exchange.ReceiverId,
+            ReceiverFirstName = exchange.Receiver?.FirstName ?? string.Empty,
+            ReceiverLastName = exchange.Receiver?.LastName ?? string.Empty,
+            Status = exchange.Status,
+            Rating = exchange.Rating,
+            Comment = exchange.Comment ?? string.Empty,
+            Created = exchange.Created,
+            Modified = exchange.Modified
+        };
+
+        // Determine requester (the person who initiated the exchange request - the receiver)
+        var requesterId = exchange.ReceiverId;
+
+        // Get requester's profile
+        var userResult = await userRepository.GetSingleAsync<User>(
+            filter: u => u.Id == requesterId,
+            includes: null,
+            selector: null
+        );
+
+        if (!userResult.Success || userResult.Data == null)
+        {
+            return Result<ExchangeDetailsResponse>.Fail("Requester not found");
+        }
+
+        var requester = userResult.Data;
+        var requesterProfile = new UserProfileResponse
+        {
+            Id = requester.Id,
+            FirstName = requester.FirstName,
+            LastName = requester.LastName,
+            Location = requester.Location,
+            Img = requester.Img,
+            Description = requester.Description,
+            Created = requester.Created
+        };
+
+        // Get requester's books
+        var bookIncludes = new List<Func<IQueryable<Book>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Book, object>>>
+        {
+            query => query.Include(b => b.Owner).Include(b => b.Language)
+        };
+
+        var booksResult = await bookRepository.GetListAsync<Book>(
+            filter: b => b.OwnerId == requesterId,
+            includes: bookIncludes,
+            selector: null
+        );
+
+        var requesterBooks = new List<BookResponse>();
+        if (booksResult.Success && booksResult.Data != null)
+        {
+            requesterBooks = booksResult.Data.Select(book => new BookResponse
+            {
+                Id = book.Id,
+                OwnerId = book.OwnerId,
+                OwnerFirstName = book.Owner?.FirstName ?? string.Empty,
+                OwnerLastName = book.Owner?.LastName ?? string.Empty,
+                Title = book.Title,
+                Author = book.Author,
+                LanguageId = book.LanguageId,
+                LanguageName = book.Language?.Name ?? string.Empty,
+                LanguageCode = book.Language?.Code ?? string.Empty,
+                Description = book.Description,
+                State = book.State,
+                Genre = book.Genre,
+                Created = book.Created,
+                Modified = book.Modified
+            }).ToList();
+        }
+
+        return Result<ExchangeDetailsResponse>.Ok(new ExchangeDetailsResponse
+        {
+            Exchange = exchangeResponse,
+            RequesterProfile = requesterProfile,
+            RequesterBooks = requesterBooks
+        });
+    }
+
     public async Task<Result<ExchangeResponse>> AddExchangeAsync(Guid receiverId, AddExchangeRequest request)
     {
         if (receiverId == request.OwnerId)
@@ -179,6 +296,7 @@ public class ExchangeService(
             return Result<ExchangeResponse>.Fail("Owner cannot change rating or comment");
         }
 
+        var previousStatus = exchange.Status;
         exchange.Status = request.Status ?? exchange.Status;
         exchange.Modified = DateTime.UtcNow;
 
@@ -188,15 +306,43 @@ public class ExchangeService(
             return Result<ExchangeResponse>.Fail(updateResult.Error);
         }
 
-        var addedExchange = await GetExchangeByIdAsync(exchange.Id);
+        var updatedExchange = await GetExchangeByIdAsync(exchange.Id);
 
+        // Determine notification message based on status change
+        string receiverMessage;
+        string ownerMessage;
+
+        if (request.Status == ExchangeStatus.Accepted)
+        {
+            receiverMessage = $"Your exchange request for \"{updatedExchange.Data.BookTitle}\" has been accepted";
+            ownerMessage = $"You have accepted the exchange request for \"{updatedExchange.Data.BookTitle}\"";
+        }
+        else if (request.Status == ExchangeStatus.Declined)
+        {
+            receiverMessage = $"Your exchange request for \"{updatedExchange.Data.BookTitle}\" has been declined";
+            ownerMessage = $"You have declined the exchange request for \"{updatedExchange.Data.BookTitle}\"";
+        }
+        else
+        {
+            receiverMessage = "Book owner has updated exchange status";
+            ownerMessage = "Exchange status has been updated";
+        }
+
+        // Notify the receiver (requester)
         await notificationService.NotifyUserAsync(exchange.ReceiverId, new ExchangeNotification
         {
-            Message = "Book owner has updated exchange status",
-            Data = addedExchange.Data
+            Message = receiverMessage,
+            Data = updatedExchange.Data
         });
 
-        return addedExchange;
+        // Notify the owner (confirmation)
+        await notificationService.NotifyUserAsync(exchange.OwnerId, new ExchangeNotification
+        {
+            Message = ownerMessage,
+            Data = updatedExchange.Data
+        });
+
+        return updatedExchange;
     }
 
     private async Task<Result<ExchangeResponse>> UpdateAsReceiverAsync(Exchange exchange, UpdateExchangeRequest request)
