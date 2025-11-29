@@ -14,6 +14,10 @@ public class DependencyRegistration
         services.AddScoped<IExchangeService, ExchangeService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IBookSwipeService, BookSwipeService>();
+        services.AddScoped<IAiService, OpenAiService>();
+        services.AddScoped<IRecommendationService, RecommendationService>();
+        services.AddScoped<ISupportService, SupportService>();
 
         return services;
     }

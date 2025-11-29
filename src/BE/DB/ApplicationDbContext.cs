@@ -15,6 +15,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Language> Languages { get; set; }
+    public DbSet<BookSwipe> BookSwipes { get; set; }
+    public DbSet<SupportTicket> SupportTickets { get; set; }
 
     public override int SaveChanges()
     {
@@ -101,6 +103,26 @@ public class ApplicationDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(m => m.SenderId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<BookSwipe>(entity =>
+        {
+            entity.HasOne(s => s.User)
+                  .WithMany()
+                  .HasForeignKey(s => s.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(s => s.Book)
+                  .WithMany()
+                  .HasForeignKey(s => s.BookId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(s => new { s.UserId, s.BookId })
+                  .IsUnique();
+        });
+        modelBuilder.Entity<SupportTicket>(entity =>
+        {
+            entity.HasOne(t => t.User)
+                  .WithMany()
+                  .HasForeignKey(t => t.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

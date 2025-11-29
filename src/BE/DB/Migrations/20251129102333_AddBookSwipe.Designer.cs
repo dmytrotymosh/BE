@@ -3,6 +3,7 @@ using System;
 using DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DB.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129102333_AddBookSwipe")]
+    partial class AddBookSwipe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -285,54 +288,6 @@ namespace DB.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("DB.Models.SupportTicket", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AdminResponse")
-                        .HasColumnType("text")
-                        .HasColumnName("admin_response");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("message");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("modified");
-
-                    b.Property<DateTime?>("RespondedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("responded_at");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("subject");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SupportTickets");
-                });
-
             modelBuilder.Entity("DB.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -507,17 +462,6 @@ namespace DB.Migrations
                     b.Navigation("Chat");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("DB.Models.SupportTicket", b =>
-                {
-                    b.HasOne("DB.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DB.Models.Chat", b =>

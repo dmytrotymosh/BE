@@ -19,4 +19,10 @@ public class NotificationService : INotificationService
         await _hubContext.Clients.User(userId.ToString())
             .SendAsync("ReceiveNotification", notification);
     }
+
+    public async Task NotifyBookLikeAsync(Guid userId, BookLikeNotification notification)
+    {
+        await _hubContext.Clients.User(userId.ToString())
+            .SendAsync("ReceiveBookLike", notification);
+    }
 }
